@@ -1,7 +1,9 @@
 from selenium import webdriver
 import time 
+from db import Database
 
 
+db = Database()
 class MagazineLuiza:
     def __init__(self) -> None:
         self.site_link = 'https://www.magazineluiza.com.br/'
@@ -21,26 +23,31 @@ class MagazineLuiza:
         time.sleep(2)
         self.driver.refresh()
         
-    def nome_celular(self, marca):
+    def modelo_celular(self, marca):
         lista = self.driver.find_element('xpath', '/html/body/div[1]/div/main/section[4]/div[3]/div/ul')
         celulares = lista.text
         celulares = celulares.split("\n")
         count = 0
-
+        
+        preco = lista.text
+        preco = preco.split(marca)
         for celular in celulares:
             if marca in celular:
                 if count == 10:
                     break
                 else:
                     print(celular)
-                    count += 1  
+                    db.insert_into_table(modelo=celular.replace('"', '').replace("'", ''), marca=marca)
+                    count += 1
+        self.abrir_site()
         print()
+    
         
-    def precos(self):
+    def precos(self, marca):
         lista = self.driver.find_element('xpath', '/html/body/div[1]/div/main/section[4]/div[3]/div/ul')
         precos = lista.text
-        precos = precos.split("Smartphone")
-        count = 0
+        precos = precos.split(marca)
+        count = 1
         
         for preco in precos:
             preco = preco.split("R$")
@@ -50,24 +57,44 @@ class MagazineLuiza:
                 try:
                     p = preco[2].split("\n")
                     print(p[0][0:8])
+                    db.insert_price(preco=p[0][0:8])
                     count += 1 
                 except:
                     print("")
+        time.sleep(1)
+        self.abrir_site()
+    
+    def web(self):
+        self.abrir_site()
+        self.nav("celular nokia")
+        self.modelo_celular(marca="Nokia")
+        self.nav("celular nokia")
+        self.precos(marca="Nokia")
+        
+        self.nav("iphone")
+        self.modelo_celular(marca="Apple")
+        self.nav("iphone")
+        self.precos(marca='Iphone')
+        
+        """
+        self.nav('celular samsung')
+        self.modelo_celular(marca="Samsung")
+        
+        self.nav("celular motorola")
+        self.modelo_celular(marca="Motorola")
+        
+        self.nav("celular xiaomi")
+        self.modelo_celular(marca="Xiaomi")
+        """
         
 site = MagazineLuiza()
+db.remove_table()
+db.create_table()
+site.web()
 
-site.abrir_site()
-site.nav("celular nokia")
-site.nome_celular(marca="Nokia")
-site.abrir_site()
-site.nav("iphone")
-site.nome_celular(marca="Apple")
-site.abrir_site()
-site.nav('celular samsung')
-site.nome_celular(marca="Samsung")
-site.abrir_site()
-site.nav("celular motorola")
-site.nome_celular(marca="Motorola")
-site.abrir_site()
-site.nav("celular xiaomi")
-site.nome_celular(marca="Xiaomi")
+
+
+
+
+
+
