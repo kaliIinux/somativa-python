@@ -1,14 +1,17 @@
 from tkinter import *
 from tkinter import ttk
 from db import Database
+from main import MagazineLuiza
+import pandas as pd
 
-
+db = Database()
 window = Tk()
 
 class Aplication():
 
     def __init__(self):
         self.window = window
+        self.site = MagazineLuiza()
         self.tela()
         self.frames_da_tela()
         self.widgets_frame1()
@@ -33,19 +36,34 @@ class Aplication():
         
         ###Criação do botão limpar
         self.btn_limpar = Button(self.frame_1, bg="#a30000", text="Limpar", font="Arial", command=self.limpar)
-        self.btn_limpar.place(relx= 0.2, rely=0.1, relwidth=0.1, relheight=0.15)
+        self.btn_limpar.place(relx= 0.25, rely=0.15, relwidth=0.1, relheight=0.15)
         
         ###Criação do botão buscar
         self.btn_buscar = Button(self.frame_1, bg="#a30000", text="Buscar", font="Arial", command=self.buscar_produto)
-        self.btn_buscar.place(relx= 0.35, rely=0.1, relwidth=0.1, relheight=0.15)
+        self.btn_buscar.place(relx= 0.4, rely=0.15, relwidth=0.1, relheight=0.15)
         
-        self.lista_marcas = ['Nokia', 'Samsung', 'Apple', 'Xiaomi', 'Motorola']
+        self.btn_webscraping = Button(self.frame_1, bg="#a30000", text="Web Scraping", font="Arial", command=self.site.web)
+        self.btn_webscraping.place(relx= 0.7, rely=0.15, relwidth=0.2, relheight=0.15)
+        
+        self.lista_marcas = ['Nokia', 'Samsung', 'LG', 'Xiaomi', 'Motorola']
         self.clicked = StringVar()
         self.drop_marcas = OptionMenu(self.frame_1, self.clicked, *self.lista_marcas)
         self.drop_marcas.pack()
         
+        self.drop_marcas.place(relx=0.05, rely=0.16, relwidth=0.15)
         
-        self.drop_marcas.place(relx=0.05, rely=0.15, relwidth=0.15)
+        self.formatos = [".xlsx", ".csv"]
+
+        self.clicked2 = StringVar()
+
+        self.clicked2.set("")
+
+        self.drop_formatos = OptionMenu(self.frame_1, self.clicked2, *self.formatos)
+        self.drop_formatos.pack()
+        self.drop_formatos.place(relx=0.7, rely=0.5, relwidth=0.2, relheight=0.15)
+        
+        self.btn_exportar = Button(self.frame_1, bg="#a30000", text="Exportar", font="Arial")
+        self.btn_exportar.place(relx= 0.7, rely=0.7, relwidth=0.2, relheight=0.15)
         
         
     def lista_frame2(self):
@@ -76,6 +94,32 @@ class Aplication():
 
     def limpar(self):
         self.lista_cell.delete(*self.lista_cell.get_children())
+    
+    def exportar(self):
+        linhas = db.get_all()
+        if self.clicked2.get() == ".xlsx":
+            try:
+                self.del_xlsx()
+            except:
+                pass
+
+            self.create_xlsx()
+            df = pd.read_excel("Produtos.xlsx")
+            for linha in linhas:
+                df.loc[len(df)] = [linha[1], linha[2], linha[3]]
+            df.to_excel("Produtos.xlsx", index=False)
+
+        elif self.clicked2.get() == ".csv":
+            try:
+                self.del_csv()
+            except:
+                pass
+
+            self.create_csv()
+            df = pd.read_csv("Produtos.csv")
+            for linha in linhas:
+                df.loc[len(df)] = [linha[1], linha[2], linha[3]]
+            df.to_csv("Produtos.csv", index=False)
         
 Aplication()        
             

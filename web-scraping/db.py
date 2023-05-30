@@ -19,13 +19,15 @@ class Database:
     ;""")
         self.__conexao.commit()
         
-    def insert_into_table(self, modelo, marca):
-        self.__cursor.execute(f'INSERT INTO celulares (modelo, marca) VALUES ("{modelo}", "{marca}");')
-        self.__conexao.commit()
+    def insert_into_table(self, modelo, marca, preco):
+        for i in range (10):
+            self.__cursor.execute(f'INSERT INTO celulares (modelo, marca, preco) VALUES ("{modelo[i]}", "{marca}", "R${preco[i]}");')
+            self.__conexao.commit()
         
-    def insert_price(self, preco, id):
-        self.__cursor.execute(f'UPDATE celulares SET preco = "{preco}" WHERE id = "{id}"')
-        self.__conexao.commit()
+    def insert_price(self, preco, id, lista):
+        for i in lista:
+            self.__cursor.execute(f'UPDATE celulares SET preco = "{preco[i]}" WHERE id = "{id[i]}"')
+            self.__conexao.commit()
     
     def remove_table(self):
         self.__cursor.execute('DROP TABLE celulares')
@@ -35,6 +37,12 @@ class Database:
         self.__cursor.execute(f'SELECT * FROM celulares where marca = "{marca}"')
         products = self.__cursor.fetchall()
         return products
+    
+    def get_all(self):
+        self.__cursor.execute(f'SELECT * FROM celulares')
+        linhas = self.__cursor.fetchall()
+        return linhas
+
 
 
 
