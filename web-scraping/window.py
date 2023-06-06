@@ -20,7 +20,7 @@ class Aplication():
         window.mainloop()
     
     def tela(self):
-        self.window.title("Cadastro de clientes")
+        self.window.title("Web-Scraping | Magazineluiza")
         self.window.configure(background= "white")
         self.window.geometry("700x500") #Definir dimensões da tela
         self.window.resizable(False, False) #Impedir que seja possível alterar o tamanho da tela no eixo x e y
@@ -45,24 +45,21 @@ class Aplication():
         self.btn_webscraping = Button(self.frame_1, bg="#a30000", text="Web Scraping", font="Arial", command=self.site.web)
         self.btn_webscraping.place(relx= 0.7, rely=0.15, relwidth=0.2, relheight=0.15)
         
-        self.lista_marcas = ['Nokia', 'Samsung', 'LG', 'Xiaomi', 'Motorola']
+        self.lista_marcas = ['Nokia', 'Samsung', 'LG', 'Xiaomi', 'Motorola', 'Todos']
         self.clicked = StringVar()
+        
         self.drop_marcas = OptionMenu(self.frame_1, self.clicked, *self.lista_marcas)
         self.drop_marcas.pack()
-        
         self.drop_marcas.place(relx=0.05, rely=0.16, relwidth=0.15)
         
         self.formatos = [".xlsx", ".csv"]
-
         self.clicked2 = StringVar()
-
-        self.clicked2.set("")
-
+        
         self.drop_formatos = OptionMenu(self.frame_1, self.clicked2, *self.formatos)
         self.drop_formatos.pack()
         self.drop_formatos.place(relx=0.7, rely=0.5, relwidth=0.2, relheight=0.15)
         
-        self.btn_exportar = Button(self.frame_1, bg="#a30000", text="Exportar", font="Arial")
+        self.btn_exportar = Button(self.frame_1, bg="#a30000", text="Exportar", font="Arial", command=self.exportar)
         self.btn_exportar.place(relx= 0.7, rely=0.7, relwidth=0.2, relheight=0.15)
         
         
@@ -83,43 +80,59 @@ class Aplication():
         #Barra de rolagem
         self.scroolLista = Scrollbar(self.frame_2, orient='vertical')
         self.lista_cell.configure(yscrollcommand=self.scroolLista.set)
+        self.todos_produtos()
         self.scroolLista.place(relx=0.96, rely=0.1, relwidth=0.04, relheight=0.85)
     
     def buscar_produto(self):
         db = Database()
         self.limpar()
         linhas = db.get_products(marca=self.clicked.get())
+        
+        if self.clicked.get() == 'Todos':
+            self.limpar()
+            linhas = db.get_all()
+            for i in range (len(linhas)):
+                self.lista_cell.insert(index=i, values=[linhas[i][1], linhas[i][2], linhas[i][3]], parent='', text=linhas[i][0])
+        else:
+            for i in range (len(linhas)):
+                self.lista_cell.insert(index=i, values=[linhas[i][1], linhas[i][2], linhas[i][3]], parent='', text=linhas[i][0])
+
+    def todos_produtos(self):
+        db = Database()
+        self.limpar()
+        linhas = db.get_all()
         for i in range (len(linhas)):
             self.lista_cell.insert(index=i, values=[linhas[i][1], linhas[i][2], linhas[i][3]], parent='', text=linhas[i][0])
-
+        
     def limpar(self):
         self.lista_cell.delete(*self.lista_cell.get_children())
     
+    def create_xlsx(self):
+        dados = {"Modelo": [''], "Marca": [''], "Preço": ['']}
+        df = pd.DataFrame(data=dados)
+        df.to_excel("Celulares.xlsx", index=False)
+        
+    def create_csv(self):
+        dados = {"Modelo": [''], "Marca": [''], "Preço": ['']}
+        df = pd.DataFrame(data=dados)
+        df.to_csv("Celulares.csv", index=False)
+        
     def exportar(self):
         linhas = db.get_all()
         if self.clicked2.get() == ".xlsx":
-            try:
-                self.del_xlsx()
-            except:
-                pass
-
             self.create_xlsx()
-            df = pd.read_excel("Produtos.xlsx")
+            df = pd.read_excel("Celulares.xlsx")
             for linha in linhas:
                 df.loc[len(df)] = [linha[1], linha[2], linha[3]]
-            df.to_excel("Produtos.xlsx", index=False)
+                
+            df.to_excel("Celulares.xlsx", index=False)
 
         elif self.clicked2.get() == ".csv":
-            try:
-                self.del_csv()
-            except:
-                pass
-
             self.create_csv()
-            df = pd.read_csv("Produtos.csv")
+            df = pd.read_csv("Celulares.csv")
             for linha in linhas:
                 df.loc[len(df)] = [linha[1], linha[2], linha[3]]
-            df.to_csv("Produtos.csv", index=False)
+            df.to_csv("Celulares.csv", index=False)
         
 Aplication()        
             
