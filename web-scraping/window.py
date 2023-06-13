@@ -6,9 +6,8 @@ import pandas as pd
 
 db = Database()
 window = Tk()
-
 class Aplication():
-
+    
     def __init__(self):
         self.window = window
         self.site = MagazineLuiza()
@@ -16,7 +15,6 @@ class Aplication():
         self.frames_da_tela()
         self.widgets_frame1()
         self.lista_frame2()
-        
         window.mainloop()
     
     def tela(self):
@@ -113,7 +111,7 @@ class Aplication():
         df.to_excel("Celulares.xlsx", index=False)
         
     def create_csv(self):
-        dados = {"Modelo": [''], "Marca": [''], "Preço": ['']}
+        dados = {"Modelo": [''], " ": [''], " ": ['']}
         df = pd.DataFrame(data=dados)
         df.to_csv("Celulares.csv", index=False)
         
